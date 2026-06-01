@@ -1,4 +1,5 @@
 import json
+import csv
 import os
 from datetime import datetime
 from pathlib import Path
@@ -32,6 +33,16 @@ def add_expense(description: str, amount: float, category: str) -> dict:
     return expense
 
 
+def delete_expense(expense_id: int) -> dict | None:
+    data = load_data()
+    match = next((e for e in data if e["id"] == expense_id), None)
+    if not match:
+        return None
+    data = [e for e in data if e["id"] != expense_id]
+    save_data(data)
+    return match
+
+
 def get_expenses(period: str = "all") -> list[dict]:
     data = load_data()
     now = datetime.now()
@@ -45,3 +56,14 @@ def get_expenses(period: str = "all") -> list[dict]:
     elif period == "year":
         return [e for e in data if datetime.fromisoformat(e["date"]).year == now.year]
     return data
+
+
+def export_to_csv(filepath: str) -> int:
+    data = load_data()
+    if not data:
+        return 0
+    with open(filepath, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=["id", "date", "description", "category", "amount"])
+        writer.writeheader()
+        writer.writerows(data)
+    return len(data)
