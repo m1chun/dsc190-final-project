@@ -1,25 +1,25 @@
 import json
 import csv
-import os
 from datetime import datetime
 from pathlib import Path
+from typing import Dict, List, Optional
 
 DATA_FILE = Path.home() / ".finance_tracker.json"
 
 
-def load_data() -> list[dict]:
+def load_data() -> List[Dict]:
     if not DATA_FILE.exists():
         return []
     with open(DATA_FILE) as f:
         return json.load(f)
 
 
-def save_data(data: list[dict]) -> None:
+def save_data(data: List[Dict]) -> None:
     with open(DATA_FILE, "w") as f:
         json.dump(data, f, indent=2)
 
 
-def add_expense(description: str, amount: float, category: str) -> dict:
+def add_expense(description: str, amount: float, category: str) -> Dict:
     data = load_data()
     expense = {
         "id": len(data) + 1,
@@ -33,7 +33,7 @@ def add_expense(description: str, amount: float, category: str) -> dict:
     return expense
 
 
-def delete_expense(expense_id: int) -> dict | None:
+def delete_expense(expense_id: int) -> Optional[Dict]:
     data = load_data()
     match = next((e for e in data if e["id"] == expense_id), None)
     if not match:
@@ -43,7 +43,7 @@ def delete_expense(expense_id: int) -> dict | None:
     return match
 
 
-def get_expenses(period: str = "all") -> list[dict]:
+def get_expenses(period: str = "all") -> List[Dict]:
     data = load_data()
     now = datetime.now()
 
